@@ -1,0 +1,26 @@
+Country,Accountid,Currency,TC
+Brazil,C2,BR,3.35
+Brazil,C13,BR,3.35
+Brazil,C15,BR,3.35
+Brazil,C18,BR,3.35
+Denmark,C6,DKK,7.4
+Italy,C9,EUR,1
+Italy,C12,EUR,1
+Italy,C20,EUR,1
+Spain,C1,EUR,1
+Spain,C7,EUR,1
+Spain,C11,EUR,1
+Spain,C21,EUR,1
+Spain,C23,EUR,1
+Greece,C5,EUR,1
+Belgium,C14,EUR,1
+Belgium,C16,EUR,1
+Belgium,C19,EUR,1
+Germany,C3,EUR,1
+Germany,C22,EUR,1
+Germany,C25,EUR,1
+United Kingdom,C10,GBP,0.86
+United Kingdom,C17,GBP,0.86
+Norway,C4,NOK,8.9
+Norway,C24,NOK,8.9
+Sweden,C8,SEK,9.4
