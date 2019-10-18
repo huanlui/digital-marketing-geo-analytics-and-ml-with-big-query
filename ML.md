@@ -49,7 +49,11 @@ Qué proporciona Google (de más abstracción y facilidad a menor):
 
 # CRMint
 
+Te permite generar flujos. En este ejemplo estmoas cargando algunos ya creados usando los jsond e la clase del 18 de octubre. 
+
 Pasos para instalar
 https://github.com/google/crmint/wiki/Deploy-CRMint-on-Google-Cloud-Platform
 
 HAce 10 días ha salido la posibilidad de hacer scripting in standard SQL. Puede hacer por ejemplo loops dentro de SQL. Comienza a ser un hídrido entre SQL y un lenguaje. Google con esto está empezando a a crear un lenguaje propio con lo que hacer todo y tenero en el mismo sitio cómodamente. 
+
+
