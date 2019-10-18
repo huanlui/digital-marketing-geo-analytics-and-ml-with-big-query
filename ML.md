@@ -41,3 +41,13 @@ Para estos casos de uso:
 * Para analistas que no saben mucho de programación.
 
 Esta herramienta es importante, porque las revoluciones digitales aparecen cuando ponemos al alcance de un usuario normal las cosas. 
+
+Qué proporciona Google (de más abstracción y facilidad a menor):
+* APISs de MLcon datos pre-entrenados, por eejmplo de imágenes. El modelo de cobro es cada vez que hacemos una llamada a esa API. 
+* AutoML: yo aporto mis imágenes etiquetadas y Google entrena automáticamente usando su modelo. 
+* BigQuery ML, BQML: nos permite entrenar modelos usando SQL stándar. A día de hoy, tenemos regresiones logísticas, regresión lineal, Kmeans y cualquier modelo que tengamos en TensorFlow . Habrán más en el futuro., 
+
+# CRMint
+
+Pasos para instalar
+https://github.com/google/crmint/wiki/Deploy-CRMint-on-Google-Cloud-Platform
