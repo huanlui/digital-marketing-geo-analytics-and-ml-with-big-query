@@ -56,4 +56,6 @@ https://github.com/google/crmint/wiki/Deploy-CRMint-on-Google-Cloud-Platform
 
 HAce 10 días ha salido la posibilidad de hacer scripting in standard SQL. Puede hacer por ejemplo loops dentro de SQL. Comienza a ser un hídrido entre SQL y un lenguaje. Google con esto está empezando a a crear un lenguaje propio con lo que hacer todo y tenero en el mismo sitio cómodamente. 
 
+Cada fase tiene un worker class, con distintoas operaciones, por ejempl MLPredictor para prediecir usando un modelo en TensorFlow.
+
 
