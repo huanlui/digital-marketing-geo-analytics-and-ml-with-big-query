@@ -1,0 +1,95 @@
+{
+  "params": [
+    {
+      "type": "text",
+      "name": "BQ_DATASET",
+      "value": "KSCHOOL"
+    },
+    {
+      "type": "text",
+      "name": "BQ_PROJECT",
+      "value": "concise-complex-251116"
+    },
+    {
+      "type": "text",
+      "name": "BQ_TABLE",
+      "value": "test_dataset"
+    },
+    {
+      "type": "text",
+      "name": "date_from_observation",
+      "value": "'20170701'"
+    },
+    {
+      "type": "text",
+      "name": "date_from_prediction",
+      "value": "'20170801'"
+    },
+    {
+      "type": "text",
+      "name": "date_to_observation",
+      "value": "'20170731'"
+    },
+    {
+      "type": "text",
+      "name": "date_to_prediction",
+      "value": "'20170815'"
+    }
+  ],
+  "jobs": [
+    {
+      "hash_start_conditions": [],
+      "worker_class": "BQQueryLauncher",
+      "params": [
+        {
+          "description": null,
+          "value": "\r\nwith prediction_dates as \r\n(select date from `bigquery-public-data.google_analytics_sample.ga_sessions_*` where geoNetwork.country = \"United States\"   and _TABLE_SUFFIX BETWEEN {% date_from_prediction %} AND {% date_to_prediction %} group by 1),          observation_dates as (select date from `bigquery-public-data.google_analytics_sample.ga_sessions_*` where geoNetwork.country = \"United States\"   and _TABLE_SUFFIX BETWEEN {% date_from_observation %} AND {% date_to_observation %}  group by 1),       prediction_transactions as ( select fullvisitorId as idtran from `bigquery-public-data.google_analytics_sample.ga_sessions_*` where geoNetwork.country = \"United States\"   and _TABLE_SUFFIX BETWEEN {% date_from_prediction %} AND {% date_to_prediction %} and date in (select date from prediction_dates) and totals.transactions >= 1   -- and fullvisitorid in (select id from ids_more_visits)  \r\n      group by 1),         \r\n     basetable as (\r\n           select * from       `bigquery-public-data.google_analytics_sample.ga_sessions_*` where geoNetwork.country = \"United States\"   and _TABLE_SUFFIX BETWEEN {% date_from_observation %} AND {% date_to_observation %} and date in (select date from observation_dates)  -- and fullvisitorid in (select id from ids_more_visits)   \r\n      ),\r\n     lastday as ( select date from observation_dates group by 1 order by 1 desc limit 1 ),\r\n     last2day as ( select date from observation_dates group by 1 order by 1 desc limit 2 ),\r\n     last7day as ( select date from observation_dates group by 1 order by 1 desc  limit 7 ),\r\n     last15day as ( select date from observation_dates group by 1 order by 1 desc  limit 15 ),\r\n     source_table as (\r\n         select concat(cast(visitStarttime as string),\r\n         cast(fullvisitorId as string)) as id, \r\n         date,\r\n         visitStarttime,\r\n         fullvisitorId,\r\n         totals.pageviews,\r\n         totals.timeOnsite,\r\n         totals.transactions,\r\n         totals.sessionQualityDim, \r\n         device.operatingSystem,\r\n         device.browser,\r\n         device.deviceCategory,\r\n         channelGrouping from basetable,\r\n         unnest(hits) as hit\r\n--where fullvisitorId --not in (select idobs from observation_transactions )\r\ngroup by 1,2,3,4,5,6,7,8,9,10,11,12)\r\n  select fullvisitorId as ClientId, \r\n  deviceCategory as device,\r\n  operatingSystem as OS,\r\n  case when prediction_transactions.idtran is not null then 1 else 0 end as label,\r\n  count(distinct id) as visits,\r\n  count(distinct case when t1.date=lastday.date then id END) as visits_lastday,\r\n  count(distinct case when t1.date=last2day.date then id END) as visits_last2day,\r\n  count(distinct case when t1.date=last7day.date then id END) as visits_last7day,\r\n  count(distinct case when t1.date=last15day.date then id END) as visits_last15day,\r\n  sum(pageviews) as pageviews,\r\n  \r\n  sum(if(t1.date = lastday.date, pageviews,0)) as pageviews_lastday,\r\n  sum(if(t1.date = last2day.date, pageviews,0)) as pageviews_last2day,\r\n  sum(if(t1.date = last7day.date, pageviews,0)) as pageviews_last7day,\r\n  sum(if(t1.date = last15day.date, pageviews,0)) as pageviews_last15day,\r\n  \r\n  if(sum(transactions) is null,0,sum(transactions)) as transactions,\r\n  if(sum(if(t1.date = lastday.date, transactions,0)) is null,0,\r\n  sum(if(t1.date = lastday.date, transactions,0))) as transactions_lastday,\r\n  if(sum(if(t1.date = last2day.date, transactions,0)) is null,0,sum(if(t1.date = last2day.date, transactions,0))) as transactions_last2day,\r\n  if(sum(if(t1.date = last7day.date, transactions,0)) is null,0,sum(if(t1.date = last7day.date, transactions,0))) as transactions_last7day,\r\n  if(sum(if(t1.date = last15day.date, transactions,0)) is null,0,sum(if(t1.date = last15day.date, transactions,0))) as transactions_last15day,\r\n  \r\n  sum(pageviews)/count(distinct id) as pagedepth,\r\n  (sum(if(t1.date = lastday.date, pageviews,0)))/(if(count(distinct case when t1.date=lastday.date then id END)=0,1,count(distinct case when t1.date=lastday.date then id END))) as pagedepth_lastday,\r\n  (sum(if(t1.date = last2day.date, pageviews,0)))/(if(count(distinct case when t1.date=last2day.date then id END)=0,1,count(distinct case when t1.date=last2day.date then id END))) as pagedepth_last2day,\r\n  (sum(if(t1.date = last7day.date, pageviews,0)))/(if(count(distinct case when t1.date=last7day.date then id END)=0,1,count(distinct case when t1.date=last7day.date then id END))) as pagedepth_last7day,\r\n  (sum(if(t1.date = last15day.date, pageviews,0)))/(if(count(distinct case when t1.date=last15day.date then id END)=0,1,count(distinct case when t1.date=last15day.date then id END))) as pagedepth_last15day,\r\n\r\n  if(avg(SessionQualityDim) is null,0,avg(SessionQualityDim)) as avg_SQ,if(max(SessionQualityDim) is null,0,max(SessionQualityDim)) as max_SQ,\r\n  if(avg(if(t1.date = lastday.date,SessionQualityDim,null)) is null,0,avg(if(t1.date = lastday.date,SessionQualityDim,null))) as avg_QS_lastday,\r\n  if(avg(if(t1.date = last2day.date,SessionQualityDim,null)) is null,0,avg(if(t1.date = last2day.date,SessionQualityDim,null))) as avg_QS_last2day,\r\n  if(avg(if(t1.date = last7day.date,SessionQualityDim,null)) is null,0,avg(if(t1.date = last7day.date,SessionQualityDim,null))) as avg_QS_last7day,\r\n  if(avg(if(t1.date = last15day.date,SessionQualityDim,null)) is null,0,avg(if(t1.date = last15day.date,SessionQualityDim,null))) as avg_QS_last15day,\r\n  \r\n  if(max(if(t1.date = lastday.date,SessionQualityDim,null)) is null,0,max(if(t1.date = lastday.date,SessionQualityDim,null))) as max_QS_lastday,\r\n  if(max(if(t1.date = last2day.date,SessionQualityDim,null)) is null,0,max(if(t1.date = last2day.date,SessionQualityDim,null))) as max_QS_last2day,\r\n  if(max(if(t1.date = last7day.date,SessionQualityDim,null)) is null,0,max(if(t1.date = last7day.date,SessionQualityDim,null))) as max_QS_last7day,\r\n  if(max(if(t1.date = last7day.date,SessionQualityDim,null)) is null,0,max(if(t1.date = last15day.date,SessionQualityDim,null))) as max_QS_last15day,\r\n\r\n  if(avg(timeOnSite) is null,0,avg(timeOnSite)) as avg_timeOnSite,if(max(timeOnSite) is null,0,max(timeOnSite)) as max_timeOnSite,\r\n  if(max(if(t1.date = lastday.date,timeOnSite,null)) is null,0,max(if(t1.date = lastday.date,timeOnSite,null))) as max_timeOnSite_lastday,\r\n  if(max(if(t1.date = last2day.date,timeOnSite,null)) is null,0,max(if(t1.date = last2day.date,timeOnSite,null))) as max_timeOnSite_last2day,\r\n  if(max(if(t1.date = last7day.date,timeOnSite,null)) is null,0,max(if(t1.date = last7day.date,timeOnSite,null))) as max_timeOnSite_last7day,\r\n  if(max(if(t1.date = last15day.date,timeOnSite,null)) is null,0,max(if(t1.date = last15day.date,timeOnSite,null))) as max_timeOnSite_last15day,\r\n\r\n  if(avg(if(t1.date = lastday.date,timeOnSite,null)) is null,0,avg(if(t1.date = lastday.date,timeOnSite,null))) as avg_timeOnSite_lastday,\r\n  if(avg(if(t1.date = last2day.date,timeOnSite,null)) is null,0,avg(if(t1.date = last2day.date,timeOnSite,null))) as avg_timeOnSite_last2day,\r\n  if(avg(if(t1.date = last7day.date,timeOnSite,null)) is null,0,avg(if(t1.date = last7day.date,timeOnSite,null))) as avg_timeOnSite_last7day,\r\n  if(avg(if(t1.date = last15day.date,timeOnSite,null)) is null,0,avg(if(t1.date = last15day.date,timeOnSite,null))) as avg_timeOnSite_last15day\r\n\r\nfrom source_table as t1 \r\n  left join lastday on t1.date=lastday.date\r\n  left join last2day on t1.date = last2day.date\r\n  left join last7day on t1.date = last7day.date\r\n  left join last15day on t1.date = last15day.date\r\n  left join prediction_transactions on t1.fullVisitorId = prediction_transactions.idtran\r\n\r\ngroup by 1,2,3,4;\r\n",
+          "label": "Query",
+          "is_required": false,
+          "type": "sql",
+          "name": "query"
+        },
+        {
+          "description": null,
+          "value": "{% BQ_PROJECT %}",
+          "label": "BQ Project ID",
+          "is_required": false,
+          "type": "string",
+          "name": "bq_project_id"
+        },
+        {
+          "description": null,
+          "value": "{% BQ_DATASET %}",
+          "label": "BQ Dataset ID",
+          "is_required": false,
+          "type": "string",
+          "name": "bq_dataset_id"
+        },
+        {
+          "description": null,
+          "value": "{% BQ_TABLE %}",
+          "label": "BQ Table ID",
+          "is_required": false,
+          "type": "string",
+          "name": "bq_table_id"
+        },
+        {
+          "description": null,
+          "value": true,
+          "label": "Overwrite table",
+          "is_required": false,
+          "type": "boolean",
+          "name": "overwrite"
+        }
+      ],
+      "id": "c3996544facc437a823cbe5fb9cb14ac",
+      "name": "Training"
+    }
+  ],
+  "name": "Clase Kschool - Training",
+  "schedules": [
+    {
+      "cron": "00 09 * * * "
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "params": [
+    {
+      "type": "text",
+      "name": "BQ_DATASET",
+      "value": "TRAININGBQML_GOOGLE"
+    },
+    {
+      "type": "text",
+      "name": "BQ_model_version",
+      "value": "model_1"
+    },
+    {
+      "type": "text",
+      "name": "BQ_PROJECT",
+      "value": "adwords-scripts-1209"
+    },
+    {
+      "type": "text",
+      "name": "BQ_TABLE",
+      "value": "propensity_to_convert_bqml"
+    }
+  ],
+  "jobs": [
+    {
+      "hash_start_conditions": [],
+      "worker_class": "BQMLTrainer",
+      "params": [
+        {
+          "description": null,
+          "value": "CREATE OR REPLACE MODEL `{% BQ_PROJECT %}.{% BQ_DATASET %}.{% BQ_model_version %}` \r\nOPTIONS(model_type='logistic_reg',\r\nlearn_rate_strategy='constant',\r\n--learn_rate_strategy='line_search',\r\ndata_split_method= 'random',\r\ndata_split_eval_fraction = 0.15,\r\nlearn_rate= 0.6,\r\nl1_reg=0.15,\r\nauto_class_weights = true\r\n) AS\r\nSELECT\r\n  device, \r\n  OS,\r\n  visits,\r\n  visits_lastday,\r\n  visits_last2day,\r\n  visits_last7day,\r\n  pageviews,\r\n  pageviews_lastday,\r\n  pageviews_last2day,\r\n  pageviews_last7day,\r\n  pagedepth,\r\n  pagedepth_lastday,\r\n  pagedepth_last2day,\r\n  pagedepth_last7day,\r\n  avg_SQ,\r\n  max_SQ,\r\n  avg_QS_lastday,\r\n  avg_QS_last2day,\r\n  avg_QS_last7day,\r\n  max_QS_lastday,\r\n  max_QS_last2day,\r\n  max_QS_last7day,\r\n  max_timeOnSite,\r\n  max_timeOnSite_lastday,\r\n  max_timeOnSite_last2day,\r\n  max_timeOnSite_last7day,\r\n  avg_timeOnSite_lastday,\r\n  avg_timeOnSite_last2day,\r\n  avg_timeOnSite_last7day,\r\n  label\r\nFROM\r\n\r\n`{% BQ_PROJECT %}.{% BQ_DATASET %}.{% BQ_TABLE %}`\r\n",
+          "label": "Query",
+          "is_required": false,
+          "type": "sql",
+          "name": "query"
+        },
+        {
+          "description": null,
+          "value": "{% BQ_PROJECT %}",
+          "label": "BQ Project ID",
+          "is_required": false,
+          "type": "string",
+          "name": "bq_project_id"
+        }
+      ],
+      "id": "f11df08ee6c34686be15a72e38a5c1bc",
+      "name": "Training from All data"
+    }
+  ],
+  "name": "Kschool Training all data",
+  "schedules": []
+}

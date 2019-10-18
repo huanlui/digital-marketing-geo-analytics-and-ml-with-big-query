@@ -1,0 +1,81 @@
+{
+  "params": [
+    {
+      "type": "text",
+      "name": "BQ_DATASET",
+      "value": "TRAININGBQML_GOOGLE"
+    },
+    {
+      "type": "text",
+      "name": "BQ_model_version",
+      "value": "model_1"
+    },
+    {
+      "type": "text",
+      "name": "BQ_PROJECT",
+      "value": "concise-complex-251116"
+    },
+    {
+      "type": "text",
+      "name": "BQ_TABLE",
+      "value": "evaluation_test"
+    },
+    {
+      "type": "text",
+      "name": "BQ_TABLE_INPUT",
+      "value": "test_dataset"
+    }
+  ],
+  "jobs": [
+    {
+      "hash_start_conditions": [],
+      "worker_class": "BQQueryLauncher",
+      "params": [
+        {
+          "description": null,
+          "value": "SELECT\r\n  clientId,predicted_label,label\r\nFROM\r\n  ml.PREDICT(MODEL `{% BQ_PROJECT %}.{% BQ_DATASET %}.{% BQ_model_version %}`, (\r\nSELECT\r\n   ClientId, device, OS, label, visits, visits_lastday, visits_last7day, visits_last2day, visits_last15day, pageviews, pageviews_lastday, pageviews_last2day, pagedepth_last7day,\r\n  pageviews_last7day, pageviews_last15day, transactions, transactions_lastday, transactions_last7day, transactions_last15day, pagedepth, pagedepth_lastday, pagedepth_last2day, pagedepth_last15day,\r\n  cast(avg_SQ as int64) as  avg_SQ, max_SQ, cast(avg_QS_lastday as int64) as avg_QS_lastday, cast(avg_QS_last7day as int64) as avg_QS_last7day, cast(avg_QS_last15day as int64) as avg_QS_last15day,\r\n  max_QS_lastday, max_QS_last2day, max_QS_last7day, max_QS_last15day, avg_timeOnSite, max_timeOnSite, max_timeOnSite_lastday, cast(avg_QS_last2day as int64) as avg_QS_last2day,\r\n  max_timeOnSite_last2day, max_timeOnSite_last7day, max_timeOnSite_last15day, avg_timeOnSite_lastday, avg_timeOnSite_last2day, avg_timeOnSite_last7day, avg_timeOnSite_last15day\r\n\r\nFROM\r\n  `{% BQ_PROJECT %}.{% BQ_DATASET %}.{% BQ_TABLE_INPUT %}` ) )\r\n",
+          "label": "Query",
+          "is_required": false,
+          "type": "sql",
+          "name": "query"
+        },
+        {
+          "description": null,
+          "value": "{% BQ_PROJECT %}",
+          "label": "BQ Project ID",
+          "is_required": false,
+          "type": "string",
+          "name": "bq_project_id"
+        },
+        {
+          "description": null,
+          "value": "{% BQ_DATASET %}",
+          "label": "BQ Dataset ID",
+          "is_required": false,
+          "type": "string",
+          "name": "bq_dataset_id"
+        },
+        {
+          "description": null,
+          "value": "{% BQ_TABLE %}",
+          "label": "BQ Table ID",
+          "is_required": false,
+          "type": "string",
+          "name": "bq_table_id"
+        },
+        {
+          "description": null,
+          "value": true,
+          "label": "Overwrite table",
+          "is_required": false,
+          "type": "boolean",
+          "name": "overwrite"
+        }
+      ],
+      "id": "6b559eac81bc4fe99953ef706ece0255",
+      "name": "PRedict New Data Kschool"
+    }
+  ],
+  "name": "Kschool Predict ",
+  "schedules": []
+}
